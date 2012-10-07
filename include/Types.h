@@ -7,11 +7,9 @@
 #include "Operation.h"
 #include "Value.h"
 
-#include <iostream>
-
 /**
  * Built-In Types.
- * Number, Stirng, Boolean and Block.
+ * Number, String, Boolean and Block.
  */
 
 namespace PS {

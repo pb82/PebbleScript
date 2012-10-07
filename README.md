@@ -35,7 +35,7 @@ void main() {
   PS::Stdlib::install(vm);
   
   vm.def("hello", hello);
-  vm.eval("hello print");
+  vm.eval("hello .");
 }
 
 ```

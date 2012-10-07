@@ -2,7 +2,6 @@
 #define FALLIBLE_H
 
 #include <string>
-#include <iostream>
 
 namespace PS {
   class Fallible {
