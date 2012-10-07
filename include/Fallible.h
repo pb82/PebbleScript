@@ -10,7 +10,6 @@ namespace PS {
     virtual ~Fallible() { }
 
     void raise(const char *msg);
-    void raise(std::string &msg);
 
     bool runtimeErrorOccured;
     std::string runtimeError;
