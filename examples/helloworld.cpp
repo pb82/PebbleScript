@@ -10,6 +10,6 @@ int main () {
   vm.def("hello", hello);
   PS::Stdlib::install(vm);
   
-  vm.eval("hello .");
+  vm.eval("hello . cr");
   return 0;
 }

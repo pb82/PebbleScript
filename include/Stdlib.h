@@ -2,9 +2,8 @@
 #define STDLIB_H
 
 #include <sstream>
-#include <limits>
-#include <cmath>
 
+#include "NumericUtils.h"
 #include "PebbleScript.h"
 
 namespace PS { namespace Stdlib {
@@ -89,12 +88,40 @@ namespace PS { namespace Stdlib {
     }
   }
 
-  void numericEquals(Environment *env) {
-    if (env->expect(Number_T, Number_T)) {
-      double a = env->pop<double>();
-      double b = env->pop<double>();
+  void equals(Environment *env) {
+    if (env->expectTwoEqual()) {
+      bool result = false;
 
-      bool result = std::fabs(a - b) < std::numeric_limits<double>::epsilon();
+      switch (env->peekType()) {
+      case Number_T:
+        {
+          double a = env->pop<double>();
+          double b = env->pop<double>();
+          result = Util::NumericUtils::equalWithEpsilon(a, b);
+          break;
+        }
+      case String_T:
+        {
+          std::string a = env->pop<std::string>();
+          std::string b = env->pop<std::string>();
+          result = a.compare(b) == 0;
+          break;
+        }
+      case Boolean_T:
+        {
+          result = env->pop<bool>() == env->pop<bool>();
+          break;
+        }
+      case Block_T:
+        {
+          // Compare pointers
+          Block *a = env->popBlock();
+          Block *b = env->popBlock();
+          result = a == b;
+          break;
+        }
+      }
+
       env->push(new Boolean(result));
     }
   }
@@ -111,7 +138,7 @@ namespace PS { namespace Stdlib {
   void install(VM &vm) {
     vm.def("dup", dup);
     vm.def("def", def);
-    vm.def("=", numericEquals);
+    vm.def("=", equals);
     vm.def("if", ifCond);
     vm.def("+", plus);
     vm.def("-", minus);

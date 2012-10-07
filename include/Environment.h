@@ -58,6 +58,8 @@ namespace PS {
     bool expect(DataType a, DataType b, DataType c);
     bool expectNotEmpty();
     bool expectAtLeast(unsigned int count);
+    bool expectTwoEqual();
+    bool expectThreeEqual();
 
   private:
     Fallible *errorReceiver;
@@ -156,7 +158,6 @@ namespace PS {
     return this->internalDefinitions[std::string(name)];
   }
 
-
   inline bool Environment::expect(DataType a) {
     if (!expectAtLeast(1)) {
       return false;
@@ -250,6 +251,45 @@ namespace PS {
   inline bool Environment::expectAtLeast(unsigned int count) {
     if (Stack::size() < count) {
       raise("assertion failed: not enough items on stack");
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  inline bool Environment::expectTwoEqual() {
+    if (!expectAtLeast(2)) {
+      return false;
+    }
+
+    if (!(Stack::top()->type == Stack::second()->type)) {
+      std::ostringstream ss;
+      ss << "Expected two equal types but found ";
+      ss << Stack::top()->toString();
+      ss << " and ";
+      ss << Stack::second()->toString();
+      raise(ss.str().c_str());
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  inline bool Environment::expectThreeEqual() {
+    if (!expectAtLeast(3)) {
+      return false;
+    }
+
+    if(!((Stack::top()->type == Stack::second()->type) &&
+         (Stack::second()->type == Stack::third()->type))) {
+      std::ostringstream ss;
+      ss << "Expected three equal types but found ";
+      ss << Stack::top()->toString();
+      ss << ", ";
+      ss << Stack::second()->toString();
+      ss << " and ";
+      ss << Stack::third()->toString();
+      raise(ss.str().c_str());
       return false;
     } else {
       return true;
