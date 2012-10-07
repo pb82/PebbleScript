@@ -15,7 +15,7 @@ void main() {
   PS::VM vm;
   PS::Stdlib::install(vm);
 
-  vm.eval("'Hello, World!' print");
+  vm.eval("'Hello, World!' .");
 }
 
 ```
