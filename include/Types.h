@@ -63,10 +63,19 @@ namespace PS {
     Block () : Value(std::deque<Operation>(), Block_T) { }
     void bless() {
       this->blessed = true;
+      /**
+       * When a block gets blessed all it's contained items have to
+       * be blessed as well. Otherwise, they would get deleted as soon
+       * as they are pop'd from the stack.
+       */
       std::deque<Operation>::iterator iter;
       for (iter = this->value.begin(); iter != this->value.end(); iter++) {
         Type *t = (*iter).value;
         if (t->type == Block_T) {
+          /**
+           * If the block contains another block we do recursive
+           * blessing.
+           */
           Block *block = static_cast<Block *>(t);
           block->bless();
         } else {
