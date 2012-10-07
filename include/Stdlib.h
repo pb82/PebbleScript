@@ -135,11 +135,49 @@ namespace PS { namespace Stdlib {
     }
   }
 
+  void ifElseCond(Environment *env) {
+    if (env->expect(Boolean_T, Block_T, Block_T)) {
+      Block *onElse = env->popBlock();
+      Block *onIf = env->popBlock();
+      bool condition = env->pop<bool>();
+
+      if (condition) {
+        env->run(onIf);
+      } else {
+        env->run(onElse);
+      }
+    }
+  }
+
+  void repeat(Environment *env) {
+    if (env->expect(Number_T, Block_T)) {
+      Block *b = env->popBlock();
+      /**
+       * We must bless this block before entering the loop.
+       * Otherwise it's values would be deleted after the first
+       * iteration (when they are pop'd).
+       */
+      b->bless();
+
+      int count = (int) env->pop<double>();
+
+      if (count < 0) {
+        return;
+      } else {
+        for (int i = 0; i < count; i++) {
+          env->run(b);
+        }
+      }
+    }
+  }
+
   void install(VM &vm) {
     vm.def("dup", dup);
     vm.def("def", def);
     vm.def("=", equals);
     vm.def("if", ifCond);
+    vm.def("ifelse", ifElseCond);
+    vm.def("repeat", repeat);
     vm.def("+", plus);
     vm.def("-", minus);
     vm.def("*", mul);
