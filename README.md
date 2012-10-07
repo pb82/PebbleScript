@@ -9,33 +9,34 @@ Hello World
 -----------
 
 ```  C++
-#include "PebbleScript.h"
+#include "../include/PebbleScript.h"
 
-void main() {
+int main () {
   PS::VM vm;
   PS::Stdlib::install(vm);
-
+  
   vm.eval("'Hello, World!' .");
+  return 0;
 }
-
 ```
 
 Embedding
 ---------
 
 ```  C++
-#include "PebbleScript.h"
+#include "../include/PebbleScript.h"
+#include "../include/Stdlib.h"
 
 void hello(PS::Environment *env) {
   env->push("Hello, World!");
 }
 
-void main() {
+int main () {
   PS::VM vm;
+  vm.def("hello", hello);
   PS::Stdlib::install(vm);
   
-  vm.def("hello", hello);
   vm.eval("hello .");
+  return 0;
 }
-
 ```
