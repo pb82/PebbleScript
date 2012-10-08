@@ -50,7 +50,9 @@ int main(int argc, char *argv[])
     PS::Stdlib::install(vm);
     PS::Modules::install(vm);
     
-    vm.eval(source.c_str());
+    if (!vm.eval(source.c_str())) {
+      std::cerr << vm.getError() << std::endl;
+    }
   } else {
     std::cerr << "Failed to load " << argv[1] << std::endl;
   }
