@@ -40,6 +40,7 @@ namespace PS {
      * Defining things (functions and constants).
      */
     void def(const char *name, Block *def);
+    void def(const char *name, ExternalFunction def);
     bool hasDefinition(const char * name);
     Block *getDefinition(const char *name);
 
@@ -148,6 +149,16 @@ namespace PS {
     internalDefinitions[std::string(name)] = def;
   }
 
+  /**
+   * @brief def bind native functions
+   * @param name the name of the function in pebble
+   * @param def a pointer to a C++ function with the signature
+   * void (Environment *)
+   */
+  inline void Environment::def(const char *name, ExternalFunction def) {
+    targetMachine->def(name, def);
+  }
+
   inline bool Environment::hasDefinition(const char *name) {
     return
         this->internalDefinitions.find(std::string(name)) !=
@@ -192,9 +203,9 @@ namespace PS {
       std::ostringstream ss;
       ss << "assertion failed: ";
       ss << "expected (";
-      ss << t->toString(a);
-      ss << ", ";
       ss << t->toString(b);
+      ss << ", ";
+      ss << t->toString(a);
       ss << ") but found: (";
       ss << Stack::top()->toString();
       ss << ", ";
@@ -213,17 +224,17 @@ namespace PS {
       return false;
     }
 
-    if(!Stack::expect(a, b)) {
+    if(!Stack::expect(a, b, c)) {
       Type *t = Stack::top();
 
       std::ostringstream ss;
       ss << "assertion failed: ";
       ss << "expected (";
-      ss << t->toString(a);
+      ss << t->toString(c);
       ss << ", ";
       ss << t->toString(b);
       ss << ", ";
-      ss << t->toString(c);
+      ss << t->toString(a);
       ss << ") but found: (";
       ss << Stack::top()->toString();
       ss << ", ";
