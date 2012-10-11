@@ -10,7 +10,7 @@
 #include "Runnable.h"
 #include "Stack.h"
 
-namespace PS {
+namespace PS {  
   class Environment : public Stack {
   public:
     Environment(Fallible *f, Runnable *r);

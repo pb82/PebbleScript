@@ -9,8 +9,6 @@
 #include <iostream>
 
 namespace PS {
-  typedef void (*ExternalFunction)(Environment *);
-
   /**
    * @brief The virtual machine class. Also the common entry point
    * for using pebble script.
