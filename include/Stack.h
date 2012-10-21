@@ -99,7 +99,7 @@ namespace PS {
     std::deque<Type *>::iterator iter;
     std::ostringstream ss;
     bool isFirst = true;
-    ss << "(top) <- ";
+    ss << "< ";
 
     for (iter = data.begin(); iter != data.end(); ++iter) {
       if (!isFirst) {
@@ -111,7 +111,7 @@ namespace PS {
       case String_T:
         {
         String *s = static_cast<String *>(t);
-        ss << s->value;
+        ss << "'" << s->value << "'";
         break;
         }
       case Number_T:
@@ -138,7 +138,7 @@ namespace PS {
 
       isFirst = false;
     }
-    ss << " -| (bottom)";
+    ss << " |";
     return ss.str();
   }
 }

@@ -1,4 +1,6 @@
 #!/usr/bin/env pebbles
 
-'Hello, World!' . 
-cr
+5 {
+	'Hello World!'.
+	cr
+} repeat

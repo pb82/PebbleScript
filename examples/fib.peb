@@ -1,0 +1,9 @@
+#!/usr/bin/env pebbles
+
+'fib' {
+    dup 1 > 
+    { 1 - dup 1 - fib swap fib + }
+    if
+} def
+
+20 fib . cr

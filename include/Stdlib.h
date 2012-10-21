@@ -126,6 +126,23 @@ namespace PS { namespace Stdlib {
     }
   }
 
+  void gt(Environment *env) {
+    if (env->expect(Number_T, Number_T)) {
+      double a = env->pop<double>();
+      double b = env->pop<double>();
+      env->push(Util::NumericUtils::greaterWithEpsilon(b, a));
+    }
+  }
+
+  void swap(Environment *env) {
+    if (env->expectAtLeast(2)) {
+      Type *a = env->popRaw();
+      Type *b = env->popRaw();
+      env->push(a);
+      env->push(b);
+    }
+  }
+
   void ifCond(Environment *env) {
     if (env->expect(Boolean_T, Block_T)) {
       Block *block = env->popBlock();
@@ -178,10 +195,12 @@ namespace PS { namespace Stdlib {
     vm.def("if", ifCond);
     vm.def("ifelse", ifElseCond);
     vm.def("repeat", repeat);
+    vm.def("swap", swap);
     vm.def("+", plus);
     vm.def("-", minus);
     vm.def("*", mul);
     vm.def("/", div);
+    vm.def(">", gt);
     vm.def(".", print);
     vm.def("cr", cr);
     vm.def("dump", dump);

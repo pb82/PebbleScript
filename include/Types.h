@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <string>
+#include <cstdlib>
 
 #include "Operation.h"
 #include "Value.h"
@@ -18,7 +19,7 @@ namespace PS {
    * Integer arithmetic may be added as a module of integer-operations.
    */
   class Number : public Value<double> {
-  public:
+  public:    
     Number (double v) : Value(v, Number_T) { }
     Number *clone() const {
       return new Number(this->value);
