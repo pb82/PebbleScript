@@ -12,7 +12,7 @@
 
 /**
  * Built-In Types.
- * Number, Stirng, Boolean and Block.
+ * Number, String, Boolean and Block.
  */
 
 namespace PS {
@@ -113,7 +113,6 @@ namespace PS {
    */
   class Block : public Value<std::deque<Operation> > {
   public:
-    static FreeStore<Block> freeStore;
     Block (std::deque<Operation> v) : Value(v, Block_T) { }
     Block () : Value(std::deque<Operation>(), Block_T) { }
     void bless() {
@@ -137,21 +136,7 @@ namespace PS {
     Block *clone() const {
       return new Block(this->value);
     }
-
-    void *operator new (size_t size) {
-      if (freeStore.has()) {
-        return freeStore.get();
-      }
-
-      return malloc(size);
-    }
-
-    void operator delete(void *p) {
-      freeStore.destroy((Block *)p);
-    }
   };
-
-  FreeStore<Block> Block::freeStore;
 }
 
 #endif // TYPES_H

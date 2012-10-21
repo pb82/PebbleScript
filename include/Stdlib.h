@@ -86,11 +86,10 @@ namespace PS { namespace Stdlib {
   }
 
   void def(Environment *env) {
-    if (env->expect(String_T, Any_T)) {
-      //Block *block = env->popBlock();
-      Type *t = env->popRaw();
+    if (env->expect(String_T, Block_T)) {
+      Block *block = env->popBlock();
       std::string name = env->pop<std::string>();
-      env->def(name.c_str(), t);
+      env->def(name.c_str(), block);
     }
   }
 

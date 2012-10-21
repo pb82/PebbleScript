@@ -123,12 +123,8 @@ namespace PS {
         /**
          * Run a block that is referenced in the dictionary.
          */
-        Type *definition = env->getDefinition(n->value.c_str());
-        if (definition->type == Block_T) {
-          run((Block *) definition);
-        } else {
-          env->push(definition);
-        }
+        Block *definition = env->getDefinition(n->value.c_str());
+        run(definition);
       } else {
         /**
          * If the word can't be looked up in wether the dictionary for external or
