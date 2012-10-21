@@ -19,5 +19,6 @@ HEADERS += \
     ../../include/Operation.h \
     ../../include/NumericUtils.h \
     ../../include/Fallible.h \
-    ../../include/Environment.h
+    ../../include/Environment.h \
+    ../../include/FreeStore.h
 

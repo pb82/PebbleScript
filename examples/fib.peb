@@ -6,4 +6,4 @@
     if
 } def
 
-20 fib . cr
+30 fib . cr

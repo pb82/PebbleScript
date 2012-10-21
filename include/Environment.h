@@ -5,6 +5,7 @@
 #include <vector>
 #include <stack>
 #include <sstream>
+#include <iostream>
 
 #include "Fallible.h"
 #include "Runnable.h"
@@ -20,6 +21,7 @@ namespace PS {
      * pop operations on the global stack
      */
     template <typename T> T pop();
+
     Type *popRaw();
     Block *popBlock();
 
@@ -39,10 +41,10 @@ namespace PS {
     /**
      * Defining things (functions and constants).
      */
-    void def(const char *name, Block *def);
+    void def(const char *name, Type *def);
     void def(const char *name, ExternalFunction def);
     bool hasDefinition(const char * name);
-    Block *getDefinition(const char *name);
+    Type *getDefinition(const char *name);
 
     void raise(const char *msg);
 
@@ -65,7 +67,7 @@ namespace PS {
   private:
     Fallible *errorReceiver;
     Runnable *targetMachine;
-    std::map<std::string, Block *> internalDefinitions;
+    std::map<std::string, Type *> internalDefinitions;
   };
 
   inline Environment::Environment(Fallible *f, Runnable *r) : errorReceiver(f), targetMachine(r) { }
@@ -75,7 +77,7 @@ namespace PS {
    * cleanup stack and dictionary.
    */
   inline Environment::~Environment() {
-    std::map<std::string, Block *>::iterator iter;
+    std::map<std::string, Type *>::iterator iter;
     for (iter = internalDefinitions.begin(); iter != internalDefinitions.end(); ++iter) {
       Type *t = iter->second;
       delete t;
@@ -97,9 +99,7 @@ namespace PS {
   }
 
   Block *Environment::popBlock() {
-    Type *t = Stack::pop();
-    Block *v = static_cast<Block *>(t);
-    return v;
+    return (Block *) Stack::pop();
   }
 
   Type *Environment::popRaw() {
@@ -130,12 +130,12 @@ namespace PS {
     Stack::push(new Boolean(v));
   }
 
-  inline void Environment::push(Type *v) {
+  inline void Environment::push(Type *v) {    
     Stack::push(v);
   }
 
   inline bool Environment::run(Block *block) {
-    return targetMachine->run(block)        ;
+    return targetMachine->run(block);
   }
 
   /**
@@ -144,8 +144,10 @@ namespace PS {
    * @param name the key for the dictionary
    * @param def the block which is stored with this key in the dictionary.
    */
-  inline void Environment::def(const char *name, Block *def) {
-    def->bless();
+  inline void Environment::def(const char *name, Type *def) {
+    if (def->type == Block_T) {
+      ((Block *) def)->bless();
+    }
     internalDefinitions[std::string(name)] = def;
   }
 
@@ -165,7 +167,7 @@ namespace PS {
         this->internalDefinitions.end();
   }
 
-  inline Block *Environment::getDefinition(const char *name) {
+  inline Type *Environment::getDefinition(const char *name) {
     return this->internalDefinitions[std::string(name)];
   }
 

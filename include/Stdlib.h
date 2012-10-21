@@ -20,6 +20,7 @@ namespace PS { namespace Stdlib {
     if (env->expect(Number_T, Number_T)) {
       double a = env->pop<double>();
       double b = env->pop<double>();
+
       env->push(a + b);
     }
   }
@@ -62,10 +63,14 @@ namespace PS { namespace Stdlib {
         ss << env->pop<bool>();
         break;
       case Block_T:
+      {
         Block *block = env->popBlock();
         ss << "{Block (";
         ss << block->value.size();
         ss << " items)}";
+        break;
+      }
+      default:
         break;
       }
       std::cout << ss.str();
@@ -81,10 +86,11 @@ namespace PS { namespace Stdlib {
   }
 
   void def(Environment *env) {
-    if (env->expect(String_T, Block_T)) {
-      Block *block = env->popBlock();
+    if (env->expect(String_T, Any_T)) {
+      //Block *block = env->popBlock();
+      Type *t = env->popRaw();
       std::string name = env->pop<std::string>();
-      env->def(name.c_str(), block);
+      env->def(name.c_str(), t);
     }
   }
 
@@ -120,6 +126,8 @@ namespace PS { namespace Stdlib {
           result = a == b;
           break;
         }
+      default:
+        break;
       }
 
       env->push(new Boolean(result));

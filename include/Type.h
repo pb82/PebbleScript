@@ -11,7 +11,11 @@ namespace PS {
     Number_T,
     String_T,
     Boolean_T,
-    Block_T
+    Block_T,
+    // The 'Any' type is onle used
+    // as a wildcard to query the
+    // stack
+    Any_T
   };
 
   /**
@@ -59,6 +63,8 @@ namespace PS {
       return std::string("boolean");
     case Block_T:
       return std::string("block");
+    case Any_T:
+      return std::string("any");
     default:
       return std::string("<<unknown>>");
     }

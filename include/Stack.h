@@ -79,20 +79,20 @@ namespace PS {
   }
 
   inline bool Stack::expect(DataType a) {
-    return data.at(0)->type == a;
+    return (data.at(0)->type == a || a == Any_T);
   }
 
   inline bool Stack::expect(DataType a, DataType b) {
     return
-        data.at(1)->type == a &&
-        data.at(0)->type == b;
+        (data.at(1)->type == a || a == Any_T) &&
+        (data.at(0)->type == b || b == Any_T);
   }
 
   inline bool Stack::expect(DataType a, DataType b, DataType c) {
     return
-        data.at(2)->type == a &&
-        data.at(1)->type == b &&
-        data.at(0)->type == c;
+        (data.at(2)->type == a || a == Any_T) &&
+        (data.at(1)->type == b || b == Any_T) &&
+        (data.at(0)->type == c || c == Any_T);
   }
 
   inline std::string Stack::toString() {
@@ -134,6 +134,8 @@ namespace PS {
         ss << " items)}";
         break;
         }
+      default:
+        break;
       }
 
       isFirst = false;

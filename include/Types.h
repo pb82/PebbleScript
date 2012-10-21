@@ -4,9 +4,11 @@
 #include <deque>
 #include <string>
 #include <cstdlib>
+#include <iostream>
 
 #include "Operation.h"
 #include "Value.h"
+#include "FreeStore.h"
 
 /**
  * Built-In Types.
@@ -20,11 +22,32 @@ namespace PS {
    */
   class Number : public Value<double> {
   public:    
+    static FreeStore<Number> freeStore;
     Number (double v) : Value(v, Number_T) { }
     Number *clone() const {
+      if (freeStore.has()) {
+        Number *n = freeStore.get();
+        n->value = this->value;
+        return n;
+      }
+
       return new Number(this->value);
     }
+
+    void *operator new (size_t size) {
+      if (freeStore.has()) {
+        return freeStore.get();
+      }
+
+      return malloc(size);
+    }
+
+    void operator delete(void *p) {
+      freeStore.destroy((Number *)p);
+    }
   };
+
+  FreeStore<Number> Number::freeStore;
 
   /**
    * Strings are built into pebble. The string literals are written
@@ -33,11 +56,26 @@ namespace PS {
    */
   class String : public Value<std::string> {
   public:
+    static FreeStore<String> freeStore;
     String (std::string v) : Value(v, String_T) { }
     String *clone() const {
       return new String(this->value);
     }
+
+    void *operator new (size_t size) {
+      if (freeStore.has()) {
+        return freeStore.get();
+      }
+
+      return malloc(size);
+    }
+
+    void operator delete(void *p) {
+      freeStore.destroy((String *)p);
+    }
   };
+
+  FreeStore<String> String::freeStore;
 
   /**
    * Currently there is a boolean type but no boolean literals.
@@ -47,11 +85,26 @@ namespace PS {
    */
   class Boolean : public Value<bool> {
   public:
+    static FreeStore<Boolean> freeStore;
     Boolean (bool v) : Value(v, Boolean_T) { }
     Boolean *clone() const {
       return new Boolean(this->value);
     }
+
+    void *operator new (size_t size) {
+      if (freeStore.has()) {
+        return freeStore.get();
+      }
+
+      return malloc(size);
+    }
+
+    void operator delete(void *p) {
+      freeStore.destroy((Boolean *)p);
+    }
   };
+
+  FreeStore<Boolean> Boolean::freeStore;
 
   /**
    * Blocks represent a group of operations that are not immediately executed,
@@ -60,9 +113,14 @@ namespace PS {
    */
   class Block : public Value<std::deque<Operation> > {
   public:
+    static FreeStore<Block> freeStore;
     Block (std::deque<Operation> v) : Value(v, Block_T) { }
     Block () : Value(std::deque<Operation>(), Block_T) { }
     void bless() {
+      if (this->blessed) {
+        return;
+      }
+
       this->blessed = true;
       std::deque<Operation>::iterator iter;
       for (iter = this->value.begin(); iter != this->value.end(); iter++) {
@@ -77,9 +135,23 @@ namespace PS {
     }
 
     Block *clone() const {
-       return new Block(this->value);
+      return new Block(this->value);
+    }
+
+    void *operator new (size_t size) {
+      if (freeStore.has()) {
+        return freeStore.get();
+      }
+
+      return malloc(size);
+    }
+
+    void operator delete(void *p) {
+      freeStore.destroy((Block *)p);
     }
   };
+
+  FreeStore<Block> Block::freeStore;
 }
 
 #endif // TYPES_H

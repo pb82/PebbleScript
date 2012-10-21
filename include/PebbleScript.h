@@ -84,17 +84,9 @@ namespace PS {
    * @param block pointer to the block to execute
    */
   inline bool VM::run(Block *block) {
-    /**
-     * If the block is a references dictionary value, we
-     * only work with a copy of it.
-     */
-    if (block->blessed) {
-      block = block->clone();
-    }
-
-    while (!block->value.empty() && !runtimeErrorOccured) {
-      Operation op = block->value.front();
-      block->value.pop_front();
+    unsigned int index = 0;
+    while (index < block->value.size() && !runtimeErrorOccured) {
+      Operation op = block->value.at(index++);
 
       switch(op.opcode) {
       case Push_OC:
@@ -131,8 +123,12 @@ namespace PS {
         /**
          * Run a block that is referenced in the dictionary.
          */
-        Block *block = env->getDefinition(n->value.c_str());
-        run(block);
+        Type *definition = env->getDefinition(n->value.c_str());
+        if (definition->type == Block_T) {
+          run((Block *) definition);
+        } else {
+          env->push(definition);
+        }
       } else {
         /**
          * If the word can't be looked up in wether the dictionary for external or
