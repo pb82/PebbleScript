@@ -88,30 +88,36 @@ namespace PS {
    * @param block pointer to the block to execute
    */
   inline bool VM::run(Block *block) {
-    unsigned int index = 0;
-    while (index < block->value.size() && !runtimeErrorOccured) {
-      Operation op = block->value.at(index++);
+    std::deque<Operation>::iterator iter = block->value.begin();
+    for (; iter != block->value.end(); ++iter) {
+      Operation op = *iter;
 
-      switch(op.opcode) {
-      case Push_OC:
+      // Seems to be a little faster than a switch statement
+
+      if (op.opcode == Push_OC) {
         this->env->push(op.value);
-        break;
-      case Call_OC:
+        continue;
+      }
+
+      if (op.opcode == Call_OC) {
         this->call(op.value);
-        break;
-      case Minus_OC:
+        continue;
+      }
+
+      if (op.opcode == Minus_OC) {
         if (env->expect(Number_T, Number_T)) {
           env->directSub(env->pop<double>());
         }
-        break;
-      case Plus_OC:
+        continue;
+      }
+
+      if (op.opcode == Plus_OC) {
         if (env->expect(Number_T, Number_T)) {
           env->directAdd(env->pop<double>());
         }
-        break;
+        continue;
       }
     }
-
     return !runtimeErrorOccured;
   }
 
