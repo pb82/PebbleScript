@@ -25,21 +25,12 @@ namespace PS {
     static FreeStore<Number> freeStore;
     Number (double v) : Value(v, Number_T) { }
     Number *clone() const {
-      if (freeStore.has()) {
-        Number *n = freeStore.get();
-        n->value = this->value;
-        return n;
-      }
-
       return new Number(this->value);
     }
 
     void *operator new (size_t size) {
-      if (freeStore.has()) {
-        return freeStore.get();
-      }
-
-      return malloc(size);
+      void *p = freeStore.get();
+      return p ? p : malloc(size);
     }
 
     void operator delete(void *p) {
@@ -63,11 +54,8 @@ namespace PS {
     }
 
     void *operator new (size_t size) {
-      if (freeStore.has()) {
-        return freeStore.get();
-      }
-
-      return malloc(size);
+      void *p = freeStore.get();
+      return p ? p : malloc(size);
     }
 
     void operator delete(void *p) {
@@ -92,11 +80,8 @@ namespace PS {
     }
 
     void *operator new (size_t size) {
-      if (freeStore.has()) {
-        return freeStore.get();
-      }
-
-      return malloc(size);
+      void *p = freeStore.get();
+      return p ? p : malloc(size);
     }
 
     void operator delete(void *p) {
@@ -124,6 +109,8 @@ namespace PS {
       std::deque<Operation>::iterator iter;
       for (iter = this->value.begin(); iter != this->value.end(); iter++) {
         Type *t = (*iter).value;
+        if (!t) continue;
+
         if (t->type == Block_T) {
           Block *block = static_cast<Block *>(t);
           block->bless();

@@ -10,6 +10,7 @@
 #include "Fallible.h"
 #include "Runnable.h"
 #include "Stack.h"
+#include "NumericUtils.h"
 
 namespace PS {  
   class Environment : public Stack {
@@ -43,8 +44,8 @@ namespace PS {
      */
     void def(const char *name, Block *def);
     void def(const char *name, ExternalFunction def);
-    bool hasDefinition(const char * name);
-    Block *getDefinition(const char *name);
+    bool hasDefinition(long hash);
+    Block *getDefinition(long hash);
 
     void raise(const char *msg);
 
@@ -67,7 +68,7 @@ namespace PS {
   private:
     Fallible *errorReceiver;
     Runnable *targetMachine;
-    std::map<std::string, Block *> internalDefinitions;
+    std::map<long, Block *> internalDefinitions;
   };
 
   inline Environment::Environment(Fallible *f, Runnable *r) : errorReceiver(f), targetMachine(r) { }
@@ -77,7 +78,7 @@ namespace PS {
    * cleanup stack and dictionary.
    */
   inline Environment::~Environment() {
-    std::map<std::string, Block *>::iterator iter;
+    std::map<long, Block *>::iterator iter;
     for (iter = internalDefinitions.begin(); iter != internalDefinitions.end(); ++iter) {
       Type *t = iter->second;
       delete t;
@@ -87,7 +88,7 @@ namespace PS {
   /**
    * Pop operations
    */
-  template <typename T> T Environment::pop() {
+  template <typename T> inline T Environment::pop() {
      Type *t = Stack::pop();
      Value<T> *v = static_cast<Value<T> *>(t);
      T value = v->value;
@@ -98,11 +99,11 @@ namespace PS {
      return value;
   }
 
-  Block *Environment::popBlock() {
+  inline Block * Environment::popBlock() {
     return (Block *) Stack::pop();
   }
 
-  Type *Environment::popRaw() {
+  inline Type *Environment::popRaw() {
     return Stack::pop();
   }
 
@@ -146,7 +147,9 @@ namespace PS {
    */
   inline void Environment::def(const char *name, Block *def) {
     def->bless();
-    internalDefinitions[std::string(name)] = def;
+    std::string v = std::string(name);
+    long hash = Util::NumericUtils::hash(v);
+    internalDefinitions[hash] = def;
   }
 
   /**
@@ -159,14 +162,14 @@ namespace PS {
     targetMachine->def(name, def);
   }
 
-  inline bool Environment::hasDefinition(const char *name) {
+  inline bool Environment::hasDefinition(long hash) {
     return
-        this->internalDefinitions.find(std::string(name)) !=
+        this->internalDefinitions.find(hash) !=
         this->internalDefinitions.end();
   }
 
-  inline Block *Environment::getDefinition(const char *name) {
-    return this->internalDefinitions[std::string(name)];
+  inline Block *Environment::getDefinition(long hash) {
+    return this->internalDefinitions[hash];
   }
 
   inline bool Environment::expect(DataType a) {

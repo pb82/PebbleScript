@@ -10,7 +10,9 @@ namespace PS {
    */
   enum Opcode {
     Push_OC,
-    Call_OC
+    Call_OC,
+    Plus_OC,
+    Minus_OC
   };
 
   /**

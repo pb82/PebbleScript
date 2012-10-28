@@ -16,23 +16,6 @@ namespace PS { namespace Stdlib {
     }
   }
 
-  void plus(Environment *env) {
-    if (env->expect(Number_T, Number_T)) {
-      double a = env->pop<double>();
-      double b = env->pop<double>();
-
-      env->push(a + b);
-    }
-  }
-
-  void minus(Environment *env) {
-    if (env->expect(Number_T, Number_T)) {
-      double a = env->pop<double>();
-      double b = env->pop<double>();
-      env->push(b - a);
-    }
-  }
-
   void mul(Environment *env) {
     if (env->expect(Number_T, Number_T)) {
       double a = env->pop<double>();
@@ -63,13 +46,13 @@ namespace PS { namespace Stdlib {
         ss << env->pop<bool>();
         break;
       case Block_T:
-      {
-        Block *block = env->popBlock();
-        ss << "{Block (";
-        ss << block->value.size();
-        ss << " items)}";
-        break;
-      }
+        {
+          Block *block = env->popBlock();
+          ss << "{Block (";
+          ss << block->value.size();
+          ss << " items)}";
+          break;
+        }
       default:
         break;
       }
@@ -203,8 +186,6 @@ namespace PS { namespace Stdlib {
     vm.def("ifelse", ifElseCond);
     vm.def("repeat", repeat);
     vm.def("swap", swap);
-    vm.def("+", plus);
-    vm.def("-", minus);
     vm.def("*", mul);
     vm.def("/", div);
     vm.def(">", gt);

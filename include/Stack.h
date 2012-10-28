@@ -15,6 +15,10 @@ namespace PS {
     ~Stack();
 
     std::string toString();
+
+    void directSub(double v);
+    void directAdd(double v);
+
   protected:
     Type *pop();
     /**
@@ -47,6 +51,14 @@ namespace PS {
     for (iter = data.begin(); iter != data.end(); ++iter) {
       delete *iter;
     }
+  }
+
+  inline void Stack::directSub(double v) {
+    ((Number *) data.front())->value -= v;
+  }
+
+  inline void Stack::directAdd(double v) {
+    ((Number *) data.front())->value += v;
   }
 
   inline Type *Stack::pop() {

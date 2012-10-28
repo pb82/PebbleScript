@@ -6,17 +6,16 @@
 #include "Types.h"
 
 namespace PS {
-  template <typename T>
-  class FreeStore {
+  template <typename T> class FreeStore {
   public:
-    bool has() {
-      return !store.empty();
-    }
-
     T *get() {
-      T *p = store.front();
-      store.pop_front();
-      return p;
+      if (store.empty()) {
+        return 0;
+      } else {
+        T *p = store.front();
+        store.pop_front();
+        return p;
+      }
     }
 
     void destroy(T *p) {

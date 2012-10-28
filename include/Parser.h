@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "Types.h"
+#include "NumericUtils.h"
 
 namespace PS {
   class Parser {
@@ -85,10 +86,15 @@ namespace PS {
    */
   inline void Parser::endWord() {
     std::string word = currentWord.str();
-    if (isPurelyNumeric(word)) {
+
+    if (word.compare("-") == 0) {
+      levels.top()->value.push_back(Operation(Minus_OC, 0));
+    } else if (word.compare("+") == 0) {
+      levels.top()->value.push_back(Operation(Plus_OC, 0));
+    } else if (isPurelyNumeric(word)) {
       levels.top()->value.push_back(Operation(Push_OC, new Number(stringToDouble(word))));
     } else {
-      levels.top()->value.push_back(Operation(Call_OC, new String(word)));
+      levels.top()->value.push_back(Operation(Call_OC, new Number(Util::NumericUtils::hash(word))));
     }
 
     beginWord();

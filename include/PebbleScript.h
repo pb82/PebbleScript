@@ -5,6 +5,7 @@
 #include "Fallible.h"
 #include "Runnable.h"
 #include "Parser.h"
+#include "NumericUtils.h"
 
 #include <iostream>
 
@@ -22,10 +23,11 @@ namespace PS {
     std::string &getError();
 
     void def(const char *name, ExternalFunction def);
-  private:
+
     bool run(Block *block);
     void call(Type *v);
 
+  private:
     Environment *env;
 
     /**
@@ -33,7 +35,7 @@ namespace PS {
      * are associated with names and can be called form inside
      * the script.
      */
-    std::map<std::string, ExternalFunction> externalDefinitions;
+    std::map<long, ExternalFunction> externalDefinitions;
   };
 
   inline VM::~VM() {
@@ -46,7 +48,9 @@ namespace PS {
   }
 
   inline void VM::def(const char *name, ExternalFunction def) {
-    externalDefinitions[std::string(name)] = def;
+    std::string v = std::string(name);
+    long hash = Util::NumericUtils::hash(v);
+    externalDefinitions[hash] = def;
   }
 
   /**
@@ -95,8 +99,15 @@ namespace PS {
       case Call_OC:
         this->call(op.value);
         break;
-      default:
-        raise("invalid opcode");
+      case Minus_OC:
+        if (env->expect(Number_T, Number_T)) {
+          env->directSub(env->pop<double>());
+        }
+        break;
+      case Plus_OC:
+        if (env->expect(Number_T, Number_T)) {
+          env->directAdd(env->pop<double>());
+        }
         break;
       }
     }
@@ -110,33 +121,22 @@ namespace PS {
    * @param v the stack item which represents the word to call
    */
   inline void VM::call(Type *v) {
-    String *n = static_cast<String *>(v);
-    if (n) {
-      if (externalDefinitions.find(n->value) != externalDefinitions.end()) {
-        /**
-         * Call an externally defined C++ funtion.
-         */
-        ExternalFunction def = externalDefinitions[n->value];
-        def(env);
+    Number *n = static_cast<Number *>(v);
+    long hash = (long) n->value;
 
-      } else if (env->hasDefinition(n->value.c_str())) {
-        /**
-         * Run a block that is referenced in the dictionary.
-         */
-        Block *definition = env->getDefinition(n->value.c_str());
-        run(definition);
-      } else {
-        /**
-         * If the word can't be looked up in wether the dictionary for external or
-         * the dictionary for inernal definitions, raise a runtime error.
-         */
-        std::ostringstream ss;
-        ss << "Failed to look up the word '";
-        ss << n->value;
-        ss << "'";
-        runtimeError = ss.str();
-        raise(ss.str().c_str());
-      }
+    if (externalDefinitions.find(hash) != externalDefinitions.end()) {
+      ExternalFunction def = externalDefinitions[hash];
+      def(env);
+    } else if (env->hasDefinition(hash)) {
+      Block *definition = env->getDefinition(hash);
+      run(definition);
+    } else {
+      std::ostringstream ss;
+      ss << "Failed to look up the word '";
+      ss << n->value;
+      ss << "'";
+      runtimeError = ss.str();
+      raise(ss.str().c_str());
     }
   }
 }
