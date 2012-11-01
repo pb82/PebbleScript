@@ -90,7 +90,7 @@ namespace PS {
    */
   template <typename T> inline T Environment::pop() {
      Type *t = Stack::pop();
-     Value<T> *v = static_cast<Value<T> *>(t);
+     Value<T> *v = static_cast<Value<T> *>(t);     
      T value = v->value;
      if (!v->blessed) {
        delete v;
@@ -173,7 +173,7 @@ namespace PS {
   }
 
   inline bool Environment::expect(DataType a) {
-    if (!expectAtLeast(1)) {
+    if (Stack::size() < 1) {
       return false;
     }
 
@@ -196,7 +196,7 @@ namespace PS {
   }
 
   inline bool Environment::expect(DataType a, DataType b) {
-    if (!expectAtLeast(2)) {
+    if (Stack::size() < 2) {
       return false;
     }
 
