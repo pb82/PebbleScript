@@ -91,6 +91,10 @@ namespace PS {
       levels.top()->value.push_back(Operation(Minus_OC, 0));
     } else if (word.compare("+") == 0) {
       levels.top()->value.push_back(Operation(Plus_OC, 0));
+    } else if (word.compare("dup") == 0) {
+      levels.top()->value.push_back(Operation(Dup_OC, 0));
+    } else if (word.compare("swap") == 0) {
+      levels.top()->value.push_back(Operation(Swap_OC, 0));
     } else if (isPurelyNumeric(word)) {
       levels.top()->value.push_back(Operation(Push_OC, new Number(stringToDouble(word))));
     } else {

@@ -12,7 +12,9 @@ namespace PS {
     Push_OC,
     Call_OC,
     Plus_OC,
-    Minus_OC
+    Minus_OC,
+    Dup_OC,
+    Swap_OC
   };
 
   /**

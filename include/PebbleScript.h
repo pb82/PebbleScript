@@ -117,6 +117,20 @@ namespace PS {
         }
         continue;
       }
+
+      if (op.opcode == Dup_OC) {
+        if (env->expectNotEmpty()) {
+          env->directDup();
+        }
+        continue;
+      }
+
+      if (op.opcode == Swap_OC) {
+        if (env->expectAtLeast(2)) {
+          env->directSwap();
+        }
+        continue;
+      }
     }
     return !runtimeErrorOccured;
   }

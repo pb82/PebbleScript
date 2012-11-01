@@ -18,6 +18,8 @@ namespace PS {
 
     void directSub(double v);
     void directAdd(double v);
+    void directDup();
+    void directSwap();
 
   protected:
     Type *pop();
@@ -64,6 +66,17 @@ namespace PS {
   inline Type *Stack::pop() {
     Type *v = data.front(); data.pop_front();
     return v;
+  }
+
+  inline void Stack::directDup() {
+    data.push_front(data.front()->clone());
+  }
+
+  inline void Stack::directSwap() {
+    Type *a = data.front(); data.pop_front();
+    Type *b = data.front(); data.pop_front();
+    data.push_front(a);
+    data.push_front(b);
   }
 
   inline Type *Stack::top() {
