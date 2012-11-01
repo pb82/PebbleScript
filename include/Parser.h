@@ -208,7 +208,14 @@ namespace PS {
   inline bool Parser::parse() {
     beginWord();
 
+    bool commentMode = false;
     for (char next = nextFromStream(); next != 0; next = nextFromStream()) {
+
+      // Comments (#)
+      if (next == 35) commentMode = true;
+      if (next == 10 || next == 13) commentMode = false;
+      if (commentMode) continue;
+
       switch (next) {
       case 9:
       case 32:
