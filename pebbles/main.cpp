@@ -63,19 +63,19 @@ void require(PS::Environment *env) {
   }
 }
 
-bool loadSource(const char *path, std::string *source, bool ignoreFirstLine=false) {
+bool loadSource(const char *path, std::string *source) {
   assert(path);
   assert(source);
   source->clear();
 
   std::string line;
-  bool firstline = ignoreFirstLine ? true : false;
   std::ifstream in(path);
   if(in.is_open()) {
     while(in) {
       std::getline(in, line);
-      if(firstline) {
-        firstline = false;
+      
+      // Skip interpreter invocation
+      if (line.substr(0,2).compare(std::string("#!")) == 0) {
         continue;
       }
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   }
 
   std::string source;
-  if (loadSource(argv[1], &source, true)) {
+  if (loadSource(argv[1], &source)) {
     PS::VM vm;
     PS::Stdlib::install(vm);
     
