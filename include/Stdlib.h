@@ -8,14 +8,6 @@
 
 namespace PS { namespace Stdlib {
 
-  void dup(Environment *env) {
-    if (env->expectNotEmpty()) {
-      Type *t = env->popRaw();
-      env->push(t);
-      env->push(t->clone());
-    }
-  }
-
   void mul(Environment *env) {
     if (env->expect(Number_T, Number_T)) {
       double a = env->pop<double>();
@@ -124,21 +116,11 @@ namespace PS { namespace Stdlib {
     }
   }
 
-  void swap(Environment *env) {
-    if (env->expectAtLeast(2)) {
-      Type *a = env->popRaw();
-      Type *b = env->popRaw();
-      env->push(a);
-      env->push(b);
-    }
-  }
-
-  void ifCond(Environment *env) {
-    if (env->expect(Boolean_T, Block_T)) {
-      Block *block = env->popBlock();
-      if (env->pop<bool>()) {
-        env->run(block);
-      }
+  void lt(Environment *env) {
+    if (env->expect(Number_T, Number_T)) {
+      double a = env->pop<double>();
+      double b = env->pop<double>();
+      env->push(Util::NumericUtils::smallerWithEpsilon(b, a));
     }
   }
 
@@ -179,16 +161,14 @@ namespace PS { namespace Stdlib {
   }
 
   void install(VM &vm) {
-    vm.def("dup", dup);
     vm.def("def", def);
     vm.def("=", equals);
-    vm.def("if", ifCond);
     vm.def("ifelse", ifElseCond);
     vm.def("repeat", repeat);
-    vm.def("swap", swap);
     vm.def("*", mul);
     vm.def("/", div);
     vm.def(">", gt);
+    vm.def("<", lt);
     vm.def(".", print);
     vm.def("cr", cr);
     vm.def("dump", dump);

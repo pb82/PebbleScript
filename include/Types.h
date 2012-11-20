@@ -100,6 +100,7 @@ namespace PS {
   public:
     Block (std::deque<Operation> v) : Value(v, Block_T) { }
     Block () : Value(std::deque<Operation>(), Block_T) { }
+
     void bless() {
       if (this->blessed) {
         return;

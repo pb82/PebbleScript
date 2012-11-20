@@ -10,6 +10,12 @@
 #include <iostream>
 
 namespace PS {
+  struct Continuation {
+  public:
+    Block *block;
+    std::deque<Operation>::iterator iterator;
+  };
+
   /**
    * @brief The virtual machine class. Also the common entry point
    * for using pebble script.
@@ -25,10 +31,11 @@ namespace PS {
     void def(const char *name, ExternalFunction def);
 
     bool run(Block *block);
-    void call(Type *v);
+    void call(long hash);
 
   private:
     Environment *env;
+    std::stack<Continuation> *continuationStack;
 
     /**
      * @brief pointers to (free or static) C++ functions that
@@ -39,10 +46,11 @@ namespace PS {
   };
 
   inline VM::~VM() {
+    delete continuationStack;
     delete env;
   }
 
-  inline VM::VM() : Fallible(), env(new Environment(this, this)) { }
+  inline VM::VM() : Fallible(), env(new Environment(this, this)), continuationStack(new std::stack<Continuation>) { }
   inline std::string &VM::getError() {
     return this->runtimeError;
   }
@@ -88,9 +96,22 @@ namespace PS {
    * @param block pointer to the block to execute
    */
   inline bool VM::run(Block *block) {
-    std::deque<Operation>::iterator iter = block->value.begin();
-    for (; iter != block->value.end(); ++iter) {
-      Operation op = *iter;
+    Continuation c;
+    c.block = block;
+    c.iterator = block->value.begin();
+
+    continuationStack->push(c);
+
+tc_startover:
+
+    Continuation continuation = continuationStack->top(); continuationStack->pop();
+    block = continuation.block;
+    std::deque<Operation>::iterator iterator = continuation.iterator;
+
+tc_optimized:
+
+    for (; iterator != block->value.end(); ++iterator) {
+      Operation op = *iterator;
 
       // Seems to be a little faster than a switch statement
 
@@ -100,7 +121,49 @@ namespace PS {
       }
 
       if (op.opcode == Call_OC) {
-        this->call(op.value);
+        Number *n = static_cast<Number *>(op.value);
+        long hash = (long) n->value;
+
+        if (externalDefinitions.find(hash) != externalDefinitions.end()) {
+
+          ExternalFunction def = externalDefinitions[hash];
+          def(env);
+          continue;
+        } else if (env->hasDefinition(hash)) {
+          // Tail call?
+          if (&*iterator == &block->value.back()) {
+            block = env->getDefinition(hash);
+            iterator = block->value.begin();
+            goto tc_optimized;
+          } else {
+            Continuation _c;
+            _c.block = block;
+            _c.iterator = ++iterator;
+            continuationStack->push(_c);
+            block = env->getDefinition(hash);
+            iterator = block->value.begin();
+            goto tc_optimized;
+          }
+        } else {
+          std::ostringstream ss;
+          ss << "Failed to look up the word '";
+          ss << hash;
+          ss << "'";
+          runtimeError = ss.str();
+          raise(ss.str().c_str());
+          break;
+        }
+      }
+
+      if (op.opcode == If_OC) {
+        if (env->expect(Boolean_T, Block_T)) {
+          Block *b = env->popBlock();
+          if (env->pop<bool>()) {
+            block = b;
+            iterator = block->value.begin();
+            goto tc_optimized;
+          }
+        }
         continue;
       }
 
@@ -131,7 +194,20 @@ namespace PS {
         }
         continue;
       }
+
+      std::ostringstream ss;
+      ss << "Unkown Opcode '";
+      ss << op.opcode;
+      ss << "'";
+      runtimeError = ss.str();
+      raise(ss.str().c_str());
+      break;
     }
+
+    if (continuationStack->size() > 0) {
+      goto tc_startover;
+    }
+
     return !runtimeErrorOccured;
   }
 
@@ -140,10 +216,7 @@ namespace PS {
    * C++ function or a block referenced in the dictionary.
    * @param v the stack item which represents the word to call
    */
-  inline void VM::call(Type *v) {
-    Number *n = static_cast<Number *>(v);
-    long hash = (long) n->value;
-
+  inline void VM::call(long hash) {
     if (externalDefinitions.find(hash) != externalDefinitions.end()) {
       ExternalFunction def = externalDefinitions[hash];
       def(env);
@@ -153,7 +226,7 @@ namespace PS {
     } else {
       std::ostringstream ss;
       ss << "Failed to look up the word '";
-      ss << n->value;
+      ss << hash;
       ss << "'";
       runtimeError = ss.str();
       raise(ss.str().c_str());
