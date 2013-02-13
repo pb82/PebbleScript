@@ -23,7 +23,7 @@ namespace PS {
   class Number : public Value<double> {
   public:    
     static FreeStore<Number> freeStore;
-    Number (double v) : Value(v, Number_T) { }
+    Number (double v) : Value<double>(v, Number_T) { }
     Number *clone() const {
       return new Number(this->value);
     }
@@ -48,7 +48,7 @@ namespace PS {
   class String : public Value<std::string> {
   public:
     static FreeStore<String> freeStore;
-    String (std::string v) : Value(v, String_T) { }
+    String (std::string v) : Value<std::string>(v, String_T) { }
     String *clone() const {
       return new String(this->value);
     }
@@ -74,7 +74,7 @@ namespace PS {
   class Boolean : public Value<bool> {
   public:
     static FreeStore<Boolean> freeStore;
-    Boolean (bool v) : Value(v, Boolean_T) { }
+    Boolean (bool v) : Value<bool>(v, Boolean_T) { }
     Boolean *clone() const {
       return new Boolean(this->value);
     }
@@ -98,8 +98,8 @@ namespace PS {
    */
   class Block : public Value<std::deque<Operation> > {
   public:
-    Block (std::deque<Operation> v) : Value(v, Block_T) { }
-    Block () : Value(std::deque<Operation>(), Block_T) { }
+    Block (std::deque<Operation> v) : Value<std::deque<Operation> >(v, Block_T) { }
+    Block () : Value<std::deque<Operation> >(std::deque<Operation>(), Block_T) { }
 
     void bless() {
       if (this->blessed) {
