@@ -49,6 +49,21 @@ int main () {
 }
 ```
 
+
+Fibonacci in PebbleScript
+-------------------------
+
+```
+'fib' {
+    dup 1 > 
+    { 1 - dup 1 - fib swap fib + }
+    if
+} def
+
+30 fib . cr
+```  
+
+
 Dependencies
 ------------
 
