@@ -1,8 +1,16 @@
 PebbleScript
 ============
 
-A tiny, header-only scripting engine for C++ applications. PebbleScript implements a little, dynamically typed, stack-based language mostly inspired by PostScript. 
-At the moment it is by no means complete.
+A toy, header-only scripting engine for C++ applications. PebbleScript implements a little stack-based language mostly inspired by PostScript.
+
+Features:
+  - Very simple C++ Interop
+  - Tiny and header only, no linking required
+  - Tail call optimization (proper tail calls run in constant memory)
+
+License:
+  MIT
+  
 
 Hello World
 -----------
@@ -44,4 +52,4 @@ int main () {
 Dependencies
 ------------
 
-Only the STL for data structures. Nothing else.
+Only the STL. Nothing else.
